@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DrPl — Doctor Plant</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+button{font-family:inherit;cursor:pointer;}
+input,select{font-family:inherit;}
+img{display:block;max-width:100%;}
+
+:root{
+  --g10:#060f03;--g9:#0d1f06;--g8:#173404;--g7:#27500a;
+  --g6:#3b6d11;--g5:#4e8816;--g4:#639922;--g3:#97c459;
+  --g2:#c0dd97;--g1:#eaf3de;--g0:#f5faf0;
+  --a8:#633806;--a6:#854f0b;--a4:#ba7517;--a3:#ef9f27;--a2:#f5c96a;--a1:#faeeda;
+  --r8:#791f1f;--r6:#a32d2d;--r4:#e24b4a;--r1:#fcebeb;
+  --t6:#0f6e56;--t5:#1d9e75;--t2:#a8e8d3;--t1:#e1f5ee;
+  --n9:#0e0e0d;--n8:#1a1a18;--n7:#2c2c2a;--n6:#3e3e3b;
+  --n5:#5f5e5a;--n4:#888780;--n3:#b4b2a9;--n2:#d3d1c7;
+  --n1:#f1efe8;--n0:#fafaf8;
+  --card:#fff;--border:#e4e2da;
+  --r-xl:18px;--r-lg:14px;--r-md:10px;--r-sm:7px;
+  --shadow-sm:0 1px 4px rgba(0,0,0,.06);
+  --shadow-md:0 4px 16px rgba(0,0,0,.09);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.14);
+  --tab-h:62px;--header-h:56px;
+}
+
+body{
+  font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',system-ui,-apple-system,sans-serif;
+  background:var(--n0);color:var(--n8);
+  min-height:100vh;line-height:1.65;overflow-x:hidden;
+}
+
+/* ── PAGES ── */
+.page{display:none;animation:fadeUp .22s ease both;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.scroll-body{
+  padding:1rem 1rem calc(var(--tab-h) + 1.5rem);
+  max-width:680px;margin:0 auto;
+  display:flex;flex-direction:column;gap:1rem;
+}
+
+/* ── HEADER ── */
+.top-bar{
+  height:var(--header-h);background:var(--g9);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.1rem;position:sticky;top:0;z-index:90;
+  border-bottom:1px solid #1e3a0a;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-logo{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--g5),var(--g7));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.brand-name{font-size:20px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1;}
+.brand-name span{color:var(--g3);}
+.brand-sub{font-size:9px;font-weight:700;color:var(--g4);letter-spacing:.1em;text-transform:uppercase;margin-top:1px;}
+.header-badge{font-size:10px;font-weight:700;color:var(--g3);border:1px solid var(--g7);border-radius:5px;padding:3px 8px;letter-spacing:.06em;}
+
+/* ── TAB BAR ── */
+.tab-bar{
+  position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);
+  background:var(--g10);border-top:1px solid #1a3508;
+  display:flex;z-index:90;padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.tab-btn{
+  flex:1;border:none;background:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:10px;font-weight:700;color:var(--g7);letter-spacing:.05em;text-transform:uppercase;
+  transition:color .18s;padding:0;position:relative;
+}
+.tab-btn.active{color:var(--g2);}
+.tab-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.tab-bar-line{position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--g4);transform:scaleX(0);transition:transform .2s;}
+.tab-btn.active .tab-bar-line{transform:scaleX(1);}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);overflow:hidden;}
+.card-head{padding:.85rem 1.1rem;background:var(--n1);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;}
+.card-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.card-ttl{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--n6);}
+.card-ttl-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.card-body{padding:1.1rem;display:flex;flex-direction:column;gap:.9rem;}
+
+/* ── FORM ── */
+.lbl{font-size:11px;font-weight:700;color:var(--n5);display:block;margin-bottom:5px;letter-spacing:.03em;}
+.inp,.sel{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r-md);font-size:14px;color:var(--n8);background:var(--n0);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.inp:focus,.sel:focus{border-color:var(--g4);box-shadow:0 0 0 3px rgba(99,153,34,.12);}
+.sel{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888780' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;
+}
+.hint{font-size:11px;color:var(--n4);margin-top:4px;line-height:1.5;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── DROP ZONE ── */
+.drop{
+  border:2px dashed var(--n2);border-radius:var(--r-lg);
+  padding:1.6rem 1rem;text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--n0);position:relative;user-select:none;
+}
+.drop:hover,.drop.over{border-color:var(--g4);background:var(--g0);}
+.drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop-ico{font-size:28px;margin-bottom:5px;}
+.drop-lbl{font-size:13px;font-weight:700;color:var(--n7);}
+.drop-sub{font-size:11px;color:var(--n4);margin-top:3px;}
+
+/* ── PREVIEW ── */
+.preview-wrap{position:relative;display:none;border-radius:var(--r-md);overflow:hidden;}
+.preview-img{width:100%;max-height:240px;object-fit:cover;}
+.preview-rm{
+  position:absolute;top:8px;right:8px;
+  background:rgba(163,45,45,.9);color:#fff;border:none;
+  border-radius:50%;width:28px;height:28px;font-size:16px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;
+  transition:all .18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  cursor:pointer;white-space:nowrap;
+}
+.btn-block{width:100%;padding:13px 16px;}
+.btn-sm{padding:8px 14px;font-size:12px;}
+.btn-xs{padding:5px 10px;font-size:11px;border-radius:var(--r-sm);}
+.btn-primary{background:var(--g8);color:var(--g2);}
+.btn-primary:hover:not(:disabled){background:var(--g7);}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;}
+.btn-ghost{background:var(--n1);color:var(--n7);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--n2);}
+.btn-ghost.active{background:var(--g1);color:var(--g7);border-color:var(--g3);}
+.btn-danger{background:var(--r1);color:var(--r8);border:1px solid #f5b5b5;}
+.btn-danger:hover{background:var(--r4);color:#fff;border-color:var(--r4);}
+
+/* ── HERO ── */
+.hero{
+  background:var(--g9);border-radius:var(--r-xl);
+  padding:1.6rem 1.25rem;color:var(--g2);position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(99,153,34,.15) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.hero-eyebrow{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--g4);margin-bottom:.5rem;}
+.hero-title{font-size:26px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em;}
+.hero-title em{color:var(--g3);font-style:normal;}
+.hero-desc{font-size:12px;color:var(--g3);line-height:1.75;margin-bottom:1.3rem;}
+.slabel{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--g4);margin-bottom:7px;}
+.class-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:1rem;}
+.cls{background:rgba(255,255,255,.06);border-radius:8px;padding:7px 4px;text-align:center;border:1px solid rgba(255,255,255,.05);}
+.cls-n{font-size:8px;color:var(--g4);font-weight:800;display:block;letter-spacing:.06em;}
+.cls-v{font-size:11px;font-weight:700;color:var(--g2);display:block;margin-top:2px;}
+.ndvi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.ns{border-radius:9px;padding:9px 7px;text-align:center;}
+.ns.g{background:var(--g7);}.ns.a{background:var(--a6);}.ns.r{background:var(--r6);}
+.ns-rng{font-size:9px;color:rgba(255,255,255,.6);display:block;font-weight:700;}
+.ns-lbl{font-size:12px;font-weight:800;color:#fff;display:block;margin-top:2px;}
+
+/* ── SAMPLE PICKER ── */
+.src-tabs{display:flex;gap:7px;flex-wrap:wrap;}
+.sample-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  max-height:300px;overflow-y:auto;padding:2px;
+}
+@media(min-width:480px){.sample-grid{grid-template-columns:repeat(4,1fr);}}
+.sample-thumb{
+  border-radius:var(--r-md);overflow:hidden;position:relative;
+  border:2px solid var(--border);cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;aspect-ratio:1;
+}
+.sample-thumb:hover{border-color:var(--g4);}
+.sample-thumb.sel{border-color:var(--g4);box-shadow:0 0 0 3px var(--g1);}
+.sample-thumb img{width:100%;height:100%;object-fit:cover;}
+.sample-thumb .s-badge{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(13,31,6,.82);font-size:9px;font-weight:700;color:var(--g2);
+  padding:3px 5px;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sample-thumb .s-check{
+  position:absolute;top:4px;right:4px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--g4);color:#fff;font-size:11px;font-weight:900;
+  display:none;align-items:center;justify-content:center;
+}
+.sample-thumb.sel .s-check{display:flex;}
+
+/* ── PROGRESS ── */
+.prog{display:none;flex-direction:column;gap:7px;padding:.4rem 0;}
+.prog.on{display:flex;}
+.prog-step{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--n5);}
+.prog-dot{width:9px;height:9px;border-radius:50%;background:var(--n2);flex-shrink:0;transition:background .3s;}
+.prog-dot.done{background:var(--g4);}
+.prog-dot.run{background:var(--g3);animation:pulse .8s ease-in-out infinite alternate;}
+@keyframes pulse{from{opacity:.25;}to{opacity:1;}}
+
+/* ── SIMILARITY BAR ── */
+.sim-list{display:flex;flex-direction:column;gap:7px;}
+.sim-row{display:flex;align-items:center;gap:8px;}
+.sim-cls{font-size:12px;font-weight:700;color:var(--n7);width:80px;flex-shrink:0;}
+.sim-bar-wrap{flex:1;height:8px;background:var(--n1);border-radius:4px;overflow:hidden;}
+.sim-bar{height:100%;border-radius:4px;background:var(--g4);transition:width .6s ease;}
+.sim-pct{font-size:11px;font-weight:700;color:var(--n5);width:38px;text-align:right;flex-shrink:0;}
+
+/* ── RESULT ── */
+.result-wrap{display:none;}
+.result-header{
+  padding:1.1rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.health-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 18px;border-radius:999px;font-size:14px;font-weight:800;
+  border:1.5px solid transparent;
+}
+.health-badge.H{background:var(--g1);color:var(--g8);border-color:var(--g3);}
+.health-badge.W{background:var(--a1);color:var(--a8);border-color:var(--a3);}
+.health-badge.D{background:var(--r1);color:var(--r8);border-color:var(--r4);}
+.ndvi-sub{font-size:11px;color:var(--n5);margin-top:4px;font-weight:600;}
+.result-meta{text-align:right;font-size:10px;color:var(--n4);line-height:1.6;}
+.result-body{padding:1.1rem;display:flex;flex-direction:column;gap:1rem;}
+.r-label{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--n4);margin-bottom:8px;}
+.dtag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--n1);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:5px 12px;
+  font-size:13px;font-weight:600;color:var(--n7);margin:0 5px 5px 0;
+}
+.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cdot.H{background:var(--g4);}.cdot.M{background:var(--a3);}.cdot.L{background:var(--r4);}
+.ev-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.ev-item{display:flex;gap:10px;font-size:13px;color:var(--n7);line-height:1.6;}
+.ev-item::before{content:'→';color:var(--g5);font-weight:900;flex-shrink:0;}
+.info-box{border-radius:var(--r-md);padding:1rem 1.1rem;}
+.info-box.teal{background:var(--t1);border:1px solid var(--t2);}
+.info-box.amber{background:var(--a1);border:1px solid var(--a2);}
+.info-ttl{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.info-box.teal .info-ttl{color:var(--t6);}
+.info-box.amber .info-ttl{color:var(--a6);}
+.info-txt{font-size:13px;line-height:1.75;}
+.info-box.teal .info-txt{color:var(--g9);}
+.info-box.amber .info-txt{color:var(--a8);}
+hr.divider{border:none;border-top:1px solid var(--border);}
+
+/* ── ADMIN ── */
+.notice-box{
+  background:var(--a1);border:1px solid var(--a2);
+  border-radius:var(--r-md);padding:.85rem 1rem;
+  font-size:12px;color:var(--a8);line-height:1.65;
+}
+.notice-box strong{font-weight:800;}
+.admin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(min-width:420px){.admin-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:580px){.admin-grid{grid-template-columns:repeat(4,1fr);}}
+.admin-card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r-md);overflow:hidden;position:relative;box-shadow:var(--shadow-sm);
+}
+.admin-card img{width:100%;aspect-ratio:1;object-fit:cover;}
+.admin-card .ac-cls{
+  position:absolute;top:5px;left:5px;
+  background:rgba(13,31,6,.82);color:var(--g2);
+  font-size:9px;font-weight:800;padding:2px 7px;
+  border-radius:4px;letter-spacing:.05em;text-transform:uppercase;
+}
+.admin-card .ac-del{
+  position:absolute;top:4px;right:4px;
+  background:rgba(163,45,45,.88);color:#fff;border:none;
+  border-radius:50%;width:22px;height:22px;font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;cursor:pointer;
+}
+.admin-card:hover .ac-del{opacity:1;}
+.admin-card .ac-label{
+  padding:5px 7px;font-size:11px;font-weight:600;color:var(--n7);
+  border-top:1px solid var(--border);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.empty{padding:2.5rem 1rem;text-align:center;color:var(--n4);font-size:13px;line-height:1.7;grid-column:1/-1;}
+.empty-ico{font-size:36px;display:block;margin-bottom:.6rem;}
+.cnt{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--g7);color:var(--g2);border-radius:999px;
+  font-size:10px;font-weight:800;min-width:18px;height:18px;padding:0 5px;margin-left:5px;
+}
+
+/* ── OVERLAY / TOAST ── */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(6,15,3,.72);
+  z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:.85rem;
+  backdrop-filter:blur(4px);
+}
+.overlay.on{display:flex;}
+.spinner{width:46px;height:46px;border:3px solid rgba(192,221,151,.2);border-top-color:var(--g3);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.overlay-msg{color:var(--g2);font-size:13px;font-weight:700;}
+
+.toast{
+  position:fixed;bottom:calc(var(--tab-h) + .8rem + env(safe-area-inset-bottom,0px));
+  left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--n9);color:#fff;padding:10px 20px;border-radius:var(--r-md);
+  font-size:13px;font-weight:600;z-index:400;max-width:90vw;text-align:center;
+  box-shadow:var(--shadow-lg);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--t6);}
+.toast.err{background:var(--r6);}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--n2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="top-bar">
+  <div class="brand">
+    <div class="brand-logo">🌿</div>
+    <div>
+      <div class="brand-name">Dr<span>Pl</span></div>
+      <div class="brand-sub">Doctor Plant</div>
+    </div>
+  </div>
+  <span class="header-badge">AI Vision</span>
+</header>
+
+<!-- ════ PAGE: 진단 ════ -->
+<div class="page active" id="page-diag">
+<div class="scroll-body">
+
+  <div class="hero">
+    <div class="hero-eyebrow">DrPl · Doctor Plant</div>
+    <div class="hero-title">식물 병해<br><em>AI 정밀 진단</em></div>
+    <p class="hero-desc">관리자가 등록한 기준 사진과 색상·형태 유사도를 비교해<br>7종 병해 및 NDVI 건강도를 분류합니다</p>
+    <div class="slabel">진단 클래스</div>
+    <div class="class-row">
+      <div class="cls"><span class="cls-n">01</span><span class="cls-v">정상</span></div>
+      <div class="cls"><span class="cls-n">02</span><span class="cls-v">황화</span></div>
+      <div class="cls"><span class="cls-n">03</span><span class="cls-v">갈반병</span></div>
+      <div class="cls"><span class="cls-n">04</span><span class="cls-v">노균병</span></div>
+      <div class="cls"><span class="cls-n">05</span><span class="cls-v">탄저병</span></div>
+      <div class="cls"><span class="cls-n">06</span><span class="cls-v">해충</span></div>
+      <div class="cls"><span class="cls-n">07</span><span class="cls-v">시듦/괴사</span></div>
+      <div class="cls"><span class="cls-n">＋</span><span class="cls-v">복합</span></div>
+    </div>
+    <div class="slabel">NDVI 건강도</div>
+    <div class="ndvi-row">
+      <div class="ns g"><span class="ns-rng">0.6 ~ 0.9</span><span class="ns-lbl">🟢 건강</span></div>
+      <div class="ns a"><span class="ns-rng">0.3 ~ 0.5</span><span class="ns-lbl">🟡 주의</span></div>
+      <div class="ns r"><span class="ns-rng">0.0 ~ 0.2</span><span class="ns-lbl">🔴 위험</span></div>
+    </div>
+  </div>
+
+  <!-- 이미지 입력 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:var(--g1)">📷</div>
+      <span class="card-ttl">진단 이미지</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <label class="lbl">이미지 소스</label>
+        <div class="src-tabs">
+          <button class="btn btn-ghost btn-sm active" id="tab-upload" onclick="switchSrc('upload')">직접 업로드</button>
+          <button class="btn btn-ghost btn-sm" id="tab-sample" onclick="switchSrc('sample')">
+            관리자 기준 사진 <span class="cnt" id="sample-cnt">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 업로드 패널 -->
+      <div id="panel-upload">
+        <div class="drop" id="diag-drop">
+          <input type="file" id="diag-file" accept="image/*">
+          <div class="drop-ico">🛸</div>
+          <div class="drop-lbl">드론 촬영 이미지 업로드</div>
+          <div class="drop-sub">클릭 또는 드래그 · JPG, PNG, WebP</div>
+        </div>
+        <div class="preview-wrap" id="diag-preview-wrap" style="margin-top:.7rem;">
+          <img class="preview-img" id="diag-preview-img" alt="">
+          <button class="preview-rm" onclick="clearDiagUpload()">×</button>
+        </div>
+      </div>
+
+      <!-- 샘플 패널 -->
+      <div id="panel-sample" style="display:none;">
+        <p class="hint" style="margin-bottom:.6rem;">관리자가 등록한 기준 사진을 선택하면 해당 이미지로 진단합니다.</p>
+        <div class="sample-grid" id="sample-grid">
+          <div class="empty"><span class="empty-ico">🌱</span>등록된 기준 사진이 없습니다.<br>관리자 탭에서 먼저 등록하세요.</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="lbl">촬영 고도</label>
+          <select class="sel" id="altitude">
+            <option value="30">30m</option>
+            <option value="60" selected>60m (권장)</option>
+            <option value="90">90m</option>
+            <option value="120">120m</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl">식물 종류</label>
+          <select class="sel" id="crop">
+            <option value="일반 작물">일반 작물</option>
+            <option value="벼">벼</option>
+            <option value="채소류">채소류</option>
+            <option value="과수">과수</option>
+            <option value="혼합 식생">혼합</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="prog" id="prog">
+        <div class="prog-step"><div class="prog-dot" id="p1"></div><span>이미지 픽셀 분석 중...</span></div>
+        <div class="prog-step"><div class="prog-dot" id="p2"></div><span>기준 사진과 색상 히스토그램 비교 중...</span></div>
+        <div class="prog-step"><div class="prog-dot" id="p3"></div><span>NDVI 지수 추정 중...</span></div>
+        <div class="prog-step"><div class="prog-dot" id="p4"></div><span>진단 결과 생성 중...</span></div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="run-btn" disabled onclick="runAnalysis()">
+        🔬 <span id="run-lbl">이미지를 먼저 선택하세요</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result-wrap" id="result-wrap">
+    <div class="card">
+      <div class="result-header">
+        <div>
+          <div id="health-badge" class="health-badge">—</div>
+          <div id="ndvi-sub" class="ndvi-sub"></div>
+        </div>
+        <div class="result-meta" id="result-meta"></div>
+      </div>
+      <div class="result-body">
+        <div>
+          <div class="r-label">병해 진단</div>
+          <div id="dtags"></div>
+        </div>
+        <hr class="divider">
+        <div>
+          <div class="r-label">유사도 분석</div>
+          <div class="sim-list" id="sim-list"></div>
+        </div>
+        <hr class="divider">
+        <div>
+          <div class="r-label">판단 근거</div>
+          <ul class="ev-list" id="ev-list"></ul>
+        </div>
+        <hr class="divider">
+        <div class="info-box teal">
+          <div class="info-ttl">💊 조치 가이드</div>
+          <div class="info-txt" id="action-txt"></div>
+        </div>
+        <div class="info-box amber" id="dist-box" style="display:none;">
+          <div class="info-ttl">⚠️ 감별 주의</div>
+          <div class="info-txt" id="dist-txt"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════ PAGE: 관리자 ════ -->
+<div class="page" id="page-admin">
+<div class="scroll-body">
+
+  <div class="notice-box">
+    <strong>🔒 관리자 — 기준 사진 라이브러리</strong><br>
+    클래스별로 기준 사진을 등록하세요. 사용자가 이미지를 올리면 이 사진들과 색상·형태를 비교해 진단합니다.<br>
+    <strong>클래스당 3~10장, 다양한 고도·증상 단계</strong>로 등록할수록 정확도가 높아집니다.<br>
+    데이터는 브라우저 localStorage에 저장됩니다.
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:var(--g1)">➕</div>
+      <span class="card-ttl">기준 사진 등록</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <label class="lbl">사진 파일</label>
+        <div class="drop" id="admin-drop">
+          <input type="file" id="admin-file" accept="image/*" onchange="adminFileChange(event)">
+          <div class="drop-ico">📂</div>
+          <div class="drop-lbl">등록할 이미지 선택</div>
+          <div class="drop-sub">JPG, PNG, WebP</div>
+        </div>
+        <div class="preview-wrap" id="admin-preview-wrap" style="margin-top:.6rem;">
+          <img class="preview-img" id="admin-preview-img" alt="">
+          <button class="preview-rm" onclick="clearAdminPreview()">×</button>
+        </div>
+      </div>
+      <div>
+        <label class="lbl">병해 클래스</label>
+        <select class="sel" id="admin-cls">
+          <option value="정상">01 · 정상 (Normal)</option>
+          <option value="황화">02 · 황화 (Chlorosis)</option>
+          <option value="갈반병">03 · 갈반병 (Brown Spot)</option>
+          <option value="노균병">04 · 노균병 (Downy Mildew)</option>
+          <option value="탄저병">05 · 탄저병 (Anthracnose)</option>
+          <option value="해충 피해">06 · 해충 피해 (Pest Damage)</option>
+          <option value="시듦/괴사">07 · 시듦/괴사 (Necrosis)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">설명 (선택)</label>
+        <input class="inp" type="text" id="admin-desc" placeholder="예) 벼 탄저병 초기 증상 · 60m 고도">
+      </div>
+      <button class="btn btn-primary btn-block" id="admin-add-btn" onclick="addPhoto()" disabled>
+        ➕ 기준 사진 등록
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:var(--g1)">🗂️</div>
+      <span class="card-ttl">등록된 기준 사진 <span class="cnt" id="admin-cnt">0</span></span>
+      <div class="card-ttl-right">
+        <button class="btn btn-danger btn-xs" id="clear-all-btn" onclick="clearAllPhotos()" style="display:none;">전체 삭제</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="admin-grid" id="admin-grid">
+        <div class="empty"><span class="empty-ico">📷</span>아직 등록된 사진이 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="goPage('diag',this)">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    진단
+    <div class="tab-bar-line"></div>
+  </button>
+  <button class="tab-btn" onclick="goPage('admin',this)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    관리자
+    <div class="tab-bar-line"></div>
+  </button>
+</nav>
+
+<div class="overlay" id="overlay"><div class="spinner"></div><div class="overlay-msg" id="overlay-msg">분석 중...</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- 숨겨진 캔버스 (픽셀 분석용) -->
+<canvas id="cv" style="display:none;"></canvas>
+
+<script>
+/* ════════════════════════════════════════
+   병해별 지식 베이스
+   - 분류 결과에 조치 가이드·감별 주의 제공
+════════════════════════════════════════ */
+const DISEASE_KB = {
+  '정상': {
+    action: '현재 식물 상태가 양호합니다. 정기적인 모니터링을 유지하고, 2주 간격으로 재촬영하여 변화를 관찰하세요.',
+    distinguish: ''
+  },
+  '황화': {
+    action: '엽록소 부족이 의심됩니다. 질소·마그네슘·철분 결핍 여부를 확인하고, 복합 미량원소 엽면 시비를 실시하세요. 배수 불량이 원인일 수 있으니 토양 습도도 점검하세요. 농업기술원(1544-8572)에 토양 분석을 의뢰하면 정확한 원인을 파악할 수 있습니다.',
+    distinguish: '노균병과 혼동 주의: 황화는 탈색이 광범위하고 경계가 흐릿합니다. 잎맥을 따라 각진 다각형 경계선이 보이면 노균병을 의심하세요.'
+  },
+  '갈반병': {
+    action: '갈반병(Brown Spot) 초기 증상입니다. 감염된 잎을 즉시 제거하고 소각 처리하세요. 만코제브 또는 프로피네브 계열 살균제를 7~10일 간격으로 2~3회 살포하세요. 이슬·다습 환경이 발병을 촉진하므로 군락 내 통풍을 개선하세요.',
+    distinguish: '탄저병과 혼동 주의: 갈반병은 함몰된 병반이나 검은 테두리 링이 없습니다. 원형 함몰+검은 링이 보이면 탄저병입니다.'
+  },
+  '노균병': {
+    action: '노균병(Downy Mildew) 증상입니다. 발병 초기라면 만코제브·포세틸알루미늄 계열 살균제를 살포하세요. 잎 뒷면 흰색 균사 여부를 육안으로 확인하세요. 밀식 재배를 피하고 통풍을 개선하며, 감염 식물체는 즉시 제거하세요.',
+    distinguish: '황화와 혼동 주의: 노균병은 엽맥을 따라 각진 다각형 경계선이 뚜렷합니다. 경계가 흐리고 전체적 탈색이면 황화입니다.'
+  },
+  '탄저병': {
+    action: '탄저병(Anthracnose) 증상입니다. 감염 부위를 제거하고, 아족시스트로빈·테부코나졸 계열 살균제를 7일 간격으로 살포하세요. 수확 후 이병 잔재물을 철저히 제거하고, 종자 소독도 실시하세요. 확산 시 농업기술원(1544-8572)에 즉시 문의하세요.',
+    distinguish: '시듦/괴사와 혼동 주의: 탄저병은 반드시 원형 함몰 병반과 검은 테두리 링이 동시에 존재합니다. 이 두 구조가 없으면 시듦/괴사로 분류하세요.'
+  },
+  '해충 피해': {
+    action: '해충에 의한 물리적 피해입니다. 잎 뒷면과 줄기를 점검해 해충 종류를 확인하세요. 진딧물·응애류는 아세타미프리드 계열, 나방류는 비티(Bt)제 또는 스피노사드 계열 농약을 사용하세요. 심각한 경우 농업기술원(1544-8572)에 문의해 정확한 해충 동정을 받으세요.',
+    distinguish: '시듦/괴사와 혼동 주의: 해충 피해는 잎 가장자리나 구멍 등 물리적 외곽 손상이 특징입니다. 내부에서 시작되는 갈변·고사는 생리적 괴사입니다.'
+  },
+  '시듦/괴사': {
+    action: '심각한 고사·괴사 증상입니다. 즉시 현장 육안 점검을 실시하고, 뿌리 부위 썩음 여부를 확인하세요. 토양 전염성 병해(역병·시들음병)가 의심되면 포세틸알루미늄·메탈락실 계열 약제를 관주 처리하세요. 농업기술원(1544-8572)에 긴급 문의를 권장합니다.',
+    distinguish: '탄저병과 혼동 주의: 괴사는 원형 병반 구조나 검은 테두리 링이 없으며 광범위하고 불규칙하게 퍼집니다.'
+  }
+};
+
+/* ════════════════════════════════════════
+   STORAGE
+════════════════════════════════════════ */
+const STORE = 'drpl_photos_v2';
+const loadPhotos = () => { try { return JSON.parse(localStorage.getItem(STORE)||'[]'); } catch { return []; } };
+const savePhotos = a => localStorage.setItem(STORE, JSON.stringify(a));
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let diagDataUrl = null;
+let imgSrc = 'upload';
+let selectedSampleId = null;
+let adminDataUrl = null, adminMime = null;
+let progTimer = null;
+
+/* ════════════════════════════════════════
+   PAGE NAV
+════════════════════════════════════════ */
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'admin') renderAdminGallery();
+}
+
+/* ════════════════════════════════════════
+   SOURCE SWITCH
+════════════════════════════════════════ */
+function switchSrc(src) {
+  imgSrc = src;
+  document.getElementById('tab-upload').classList.toggle('active', src==='upload');
+  document.getElementById('tab-sample').classList.toggle('active', src==='sample');
+  document.getElementById('panel-upload').style.display = src==='upload' ? 'block' : 'none';
+  document.getElementById('panel-sample').style.display = src==='sample' ? 'block' : 'none';
+  if (src === 'sample') renderSampleGrid();
+  updateRunBtn();
+}
+
+/* ════════════════════════════════════════
+   DIAG UPLOAD
+════════════════════════════════════════ */
+const diagDrop = document.getElementById('diag-drop');
+const diagFile = document.getElementById('diag-file');
+
+diagFile.addEventListener('change', e => { if (e.target.files[0]) loadDiagFile(e.target.files[0]); });
+diagDrop.addEventListener('dragover', e => { e.preventDefault(); diagDrop.classList.add('over'); });
+diagDrop.addEventListener('dragleave', () => diagDrop.classList.remove('over'));
+diagDrop.addEventListener('drop', e => {
+  e.preventDefault(); diagDrop.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadDiagFile(f);
+});
+
+function loadDiagFile(file) {
+  const r = new FileReader();
+  r.onload = ev => {
+    diagDataUrl = ev.target.result;
+    document.getElementById('diag-preview-img').src = diagDataUrl;
+    document.getElementById('diag-preview-wrap').style.display = 'block';
+    updateRunBtn();
+  };
+  r.readAsDataURL(file);
+}
+
+function clearDiagUpload() {
+  diagDataUrl = null;
+  document.getElementById('diag-preview-wrap').style.display = 'none';
+  diagFile.value = '';
+  updateRunBtn();
+}
+
+/* ════════════════════════════════════════
+   SAMPLE GRID
+════════════════════════════════════════ */
+function renderSampleGrid() {
+  const photos = loadPhotos();
+  const grid = document.getElementById('sample-grid');
+  document.getElementById('sample-cnt').textContent = photos.length;
+  grid.innerHTML = '';
+  if (!photos.length) {
+    grid.innerHTML = '<div class="empty"><span class="empty-ico">🌱</span>등록된 기준 사진이 없습니다.<br>관리자 탭에서 먼저 등록하세요.</div>';
+    return;
+  }
+  photos.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'sample-thumb' + (selectedSampleId===p.id ? ' sel' : '');
+    d.dataset.id = p.id;
+    d.onclick = () => selectSample(p.id);
+    d.innerHTML = `<img src="${p.data}" alt="${p.cls}">
+      <div class="s-badge">${p.cls}</div>
+      <div class="s-check">✓</div>`;
+    grid.appendChild(d);
+  });
+}
+
+function selectSample(id) {
+  selectedSampleId = id;
+  document.querySelectorAll('.sample-thumb').forEach(t => t.classList.toggle('sel', t.dataset.id===id));
+  updateRunBtn();
+}
+
+/* ════════════════════════════════════════
+   RUN BTN
+════════════════════════════════════════ */
+function updateRunBtn() {
+  const hasImg = imgSrc==='upload' ? !!diagDataUrl : !!selectedSampleId;
+  const btn = document.getElementById('run-btn');
+  btn.disabled = !hasImg;
+  const lbl = document.getElementById('run-lbl');
+  if (!hasImg) lbl.textContent = '이미지를 먼저 선택하세요';
+  else lbl.textContent = '기준 사진과 비교 분석 시작';
+}
+
+/* ════════════════════════════════════════
+   PROGRESS
+════════════════════════════════════════ */
+function startProg() {
+  document.getElementById('prog').classList.add('on');
+  ['p1','p2','p3','p4'].forEach(id => document.getElementById(id).className='prog-dot');
+  document.getElementById('p1').classList.add('run');
+  let i = 0;
+  const ids = ['p1','p2','p3','p4'];
+  progTimer = setInterval(() => {
+    if (i < ids.length-1) {
+      document.getElementById(ids[i]).className = 'prog-dot done';
+      i++;
+      document.getElementById(ids[i]).classList.add('run');
+    }
+  }, 500);
+}
+function stopProg() {
+  clearInterval(progTimer);
+  ['p1','p2','p3','p4'].forEach(id => document.getElementById(id).className='prog-dot done');
+  setTimeout(() => document.getElementById('prog').classList.remove('on'), 600);
+}
+
+/* ════════════════════════════════════════
+   CORE: 이미지 → 색상 히스토그램 추출
+   Canvas에 그려서 픽셀 RGB 샘플링
+════════════════════════════════════════ */
+function getImageHistogram(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const SIZE = 64; // 리샘플 크기 (성능 vs 정밀도)
+      const cv = document.getElementById('cv');
+      cv.width = SIZE; cv.height = SIZE;
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(img, 0, 0, SIZE, SIZE);
+      const px = ctx.getImageData(0, 0, SIZE, SIZE).data;
+
+      // RGB 히스토그램 (32 bins each)
+      const BINS = 32;
+      const rH = new Float32Array(BINS);
+      const gH = new Float32Array(BINS);
+      const bH = new Float32Array(BINS);
+      // HSV 히스토그램
+      const hH = new Float32Array(36); // hue 10° 간격
+      const sH = new Float32Array(10);
+      const vH = new Float32Array(10);
+
+      let total = 0;
+      for (let i = 0; i < px.length; i += 4) {
+        const r = px[i], g = px[i+1], b = px[i+2];
+        rH[Math.floor(r/256*BINS)]++;
+        gH[Math.floor(g/256*BINS)]++;
+        bH[Math.floor(b/256*BINS)]++;
+        // HSV 변환
+        const [h,s,v] = rgbToHsv(r,g,b);
+        hH[Math.floor(h/360*36)]++;
+        sH[Math.floor(s*10)]++;
+        vH[Math.floor(v*10)]++;
+        total++;
+      }
+
+      // 정규화
+      const norm = arr => { const s=arr.reduce((a,b)=>a+b,0)||1; return arr.map(v=>v/s); };
+      resolve({
+        r: norm(rH), g: norm(gH), b: norm(bH),
+        h: norm(hH), s: norm(sH), v: norm(vH),
+        // 평균 채널값 (NDVI 추정용)
+        avgR: px.filter((_,i)=>i%4===0).reduce((a,b)=>a+b,0)/total,
+        avgG: px.filter((_,i)=>i%4===1).reduce((a,b)=>a+b,0)/total,
+        avgB: px.filter((_,i)=>i%4===2).reduce((a,b)=>a+b,0)/total,
+      });
+    };
+    img.src = dataUrl;
+  });
+}
+
+function rgbToHsv(r, g, b) {
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+  let h=0, s=max===0?0:d/max, v=max;
+  if (d!==0) {
+    if (max===r) h=((g-b)/d)%6;
+    else if (max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h=h*60; if(h<0) h+=360;
+  }
+  return [h,s,v];
+}
+
+/* ════════════════════════════════════════
+   CORE: 두 히스토그램 유사도 (Bhattacharyya)
+   0 = 완전 다름, 1 = 완전 동일
+════════════════════════════════════════ */
+function histSimilarity(a, b) {
+  let sum = 0;
+  for (let i = 0; i < a.length; i++) sum += Math.sqrt(a[i] * b[i]);
+  return Math.min(sum, 1);
+}
+
+function imageSimilarity(hA, hB) {
+  // 가중 평균: 색조(hue) 50%, 채도 20%, RGB 30%
+  const hSim = histSimilarity(hA.h, hB.h);
+  const sSim = histSimilarity(hA.s, hB.s);
+  const rSim = histSimilarity(hA.r, hB.r);
+  const gSim = histSimilarity(hA.g, hB.g);
+  const bSim = histSimilarity(hA.b, hB.b);
+  return hSim*0.5 + sSim*0.2 + (rSim+gSim+bSim)/3*0.3;
+}
+
+/* ════════════════════════════════════════
+   CORE: NDVI 추정 (RGB 채널 기반)
+   실제 NDVI = (NIR-Red)/(NIR+Red)
+   RGB 카메라 근사: 녹색 채널을 NIR 대역 프록시로 활용
+════════════════════════════════════════ */
+function estimateNdvi(hist) {
+  const r = hist.avgR / 255;
+  const g = hist.avgG / 255;
+  // 근사 NDVI
+  const ndvi = (g - r) / (g + r + 0.001);
+  // 0~1 범위로 조정 (실제 NDVI -1~1 → 0~1 스케일)
+  return Math.max(0, Math.min(0.9, (ndvi + 1) / 2 * 0.9));
+}
+
+/* ════════════════════════════════════════
+   MAIN: 분석 실행
+════════════════════════════════════════ */
+async function runAnalysis() {
+  const photos = loadPhotos();
+  if (!photos.length) {
+    showToast('관리자 탭에서 기준 사진을 먼저 등록하세요.', true);
+    return;
+  }
+
+  // 진단 이미지 결정
+  let diagUrl;
+  if (imgSrc === 'upload') {
+    diagUrl = diagDataUrl;
+  } else {
+    const p = photos.find(p => p.id === selectedSampleId);
+    if (!p) { showToast('선택된 사진을 찾을 수 없습니다.', true); return; }
+    diagUrl = p.data;
+  }
+
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('overlay-msg').textContent = `기준 사진 ${photos.length}장과 비교 분석 중...`;
+  document.getElementById('run-btn').disabled = true;
+  startProg();
+
+  try {
+    // 진단 이미지 히스토그램
+    const diagHist = await getImageHistogram(diagUrl);
+
+    // 각 기준 사진과 비교 → 클래스별 최대 유사도 수집
+    const clsScores = {}; // { 클래스명: 최대유사도 }
+
+    for (const p of photos) {
+      const refHist = await getImageHistogram(p.data);
+      const sim = imageSimilarity(diagHist, refHist);
+      if (!(p.cls in clsScores) || sim > clsScores[p.cls]) {
+        clsScores[p.cls] = sim;
+      }
+    }
+
+    // 정렬
+    const sorted = Object.entries(clsScores)
+      .sort((a,b) => b[1]-a[1]);
+
+    // NDVI 추정
+    const ndviRaw = estimateNdvi(diagHist);
+    const ndviDisplay = (ndviRaw * 0.9).toFixed(2);
+    const ndviMax = Math.min(ndviRaw * 0.9 + 0.15, 0.9).toFixed(2);
+
+    let healthLevel, ndviLabel;
+    if (ndviRaw > 0.55) { healthLevel='건강'; ndviLabel=`${(0.6).toFixed(1)} ~ ${ndviMax}`; }
+    else if (ndviRaw > 0.35) { healthLevel='주의'; ndviLabel=`${(0.3).toFixed(1)} ~ ${(0.5).toFixed(1)}`; }
+    else { healthLevel='위험'; ndviLabel=`${(0.0).toFixed(1)} ~ ${ndviDisplay}`; }
+
+    // 신뢰도 판단
+    const topScore = sorted[0][1];
+    const confidence = topScore > 0.75 ? '높음' : topScore > 0.55 ? '중간' : '낮음';
+    const topCls = sorted[0][0];
+    const secondCls = sorted.length > 1 && sorted[1][1] > topScore * 0.88 ? sorted[1][0] : null;
+
+    // 판단 근거 생성
+    const alt = document.getElementById('altitude').value;
+    const crop = document.getElementById('crop').value;
+    const evidence = [
+      `[기준사진 비교] 등록된 ${photos.length}장의 기준 사진과 색상·채도 히스토그램을 비교한 결과, "${topCls}" 클래스와 유사도 ${(topScore*100).toFixed(1)}%로 가장 높게 일치했습니다.`,
+      `[색상 분석] 이미지의 평균 R:${Math.round(diagHist.avgR)} G:${Math.round(diagHist.avgG)} B:${Math.round(diagHist.avgB)} — 녹색 채널 대비 적색 채널 비율로 NDVI를 추정했습니다.`,
+      `[NDVI 추정] ${crop} · ${alt}m 고도 촬영 기준 추정 NDVI ${ndviLabel} → ${healthLevel} 등급 판정.`
+    ];
+
+    if (secondCls) {
+      evidence.push(`[복합 의심] "${secondCls}" 클래스와도 유사도 ${(sorted[1][1]*100).toFixed(1)}%로 근접합니다. 현장 육안 확인을 권장합니다.`);
+    }
+    if (confidence === '낮음') {
+      evidence.push(`[주의] 기준 사진과의 최대 유사도가 ${(topScore*100).toFixed(1)}%로 낮습니다. 현장 육안 재확인 또는 농업기술원(1544-8572) 전문가 검토를 권장합니다.`);
+    }
+
+    stopProg();
+    renderResult({
+      healthLevel, ndviLabel, topCls, secondCls, confidence, sorted, evidence,
+      action: DISEASE_KB[topCls]?.action || '농업기술원(1544-8572)에 문의하세요.',
+      distinguish: DISEASE_KB[topCls]?.distinguish || ''
+    });
+
+  } catch(e) {
+    stopProg();
+    showToast('분석 오류: ' + e.message, true);
+  } finally {
+    document.getElementById('overlay').classList.remove('on');
+    document.getElementById('run-btn').disabled = false;
+    updateRunBtn();
+  }
+}
+
+/* ════════════════════════════════════════
+   RENDER RESULT
+════════════════════════════════════════ */
+function renderResult(r) {
+  document.getElementById('result-wrap').style.display = 'block';
+
+  // 건강 배지
+  const badge = document.getElementById('health-badge');
+  badge.className = 'health-badge';
+  if (r.healthLevel==='건강') { badge.classList.add('H'); badge.textContent='🟢 건강'; }
+  else if (r.healthLevel==='주의') { badge.classList.add('W'); badge.textContent='🟡 주의 / 스트레스'; }
+  else { badge.classList.add('D'); badge.textContent='🔴 위험 / 괴사'; }
+
+  document.getElementById('ndvi-sub').textContent = '추정 NDVI: ' + r.ndviLabel;
+  document.getElementById('result-meta').innerHTML =
+    `기준사진 비교 분석<br>${new Date().toLocaleTimeString('ko-KR')}`;
+
+  // 진단 태그
+  const dt = document.getElementById('dtags'); dt.innerHTML = '';
+  const makeTag = (name, conf, role) => {
+    const c = conf==='높음'?'H':conf==='중간'?'M':'L';
+    const span = document.createElement('span');
+    span.className = 'dtag';
+    span.innerHTML = `<span class="cdot ${c}"></span>${name}${role==='보조'?'<span style="font-size:10px;color:var(--n4);margin-left:3px;">보조</span>':''} <span style="font-size:11px;color:var(--n4);margin-left:3px;">${conf}</span>`;
+    dt.appendChild(span);
+  };
+  makeTag(r.topCls, r.confidence, '주');
+  if (r.secondCls) makeTag(r.secondCls, '낮음', '보조');
+
+  // 유사도 바
+  const sl = document.getElementById('sim-list'); sl.innerHTML = '';
+  r.sorted.slice(0,5).forEach(([cls, score]) => {
+    const pct = Math.round(score*100);
+    const row = document.createElement('div');
+    row.className = 'sim-row';
+    row.innerHTML = `
+      <span class="sim-cls">${cls}</span>
+      <div class="sim-bar-wrap"><div class="sim-bar" style="width:0%" data-w="${pct}%"></div></div>
+      <span class="sim-pct">${pct}%</span>`;
+    sl.appendChild(row);
+  });
+  // 애니메이션
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.sim-bar').forEach(b => b.style.width = b.dataset.w);
+  });
+
+  // 근거
+  const ev = document.getElementById('ev-list'); ev.innerHTML = '';
+  r.evidence.forEach(t => {
+    const li = document.createElement('li');
+    li.className = 'ev-item'; li.textContent = t;
+    ev.appendChild(li);
+  });
+
+  // 조치
+  document.getElementById('action-txt').textContent = r.action;
+
+  // 감별
+  const db = document.getElementById('dist-box');
+  if (r.distinguish) {
+    document.getElementById('dist-txt').textContent = r.distinguish;
+    db.style.display = 'block';
+  } else db.style.display = 'none';
+
+  document.getElementById('result-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ════════════════════════════════════════
+   ADMIN
+════════════════════════════════════════ */
+function adminFileChange(e) {
+  const file = e.target.files[0]; if (!file) return;
+  adminMime = file.type || 'image/jpeg';
+  const r = new FileReader();
+  r.onload = ev => {
+    adminDataUrl = ev.target.result;
+    document.getElementById('admin-preview-img').src = adminDataUrl;
+    document.getElementById('admin-preview-wrap').style.display = 'block';
+    document.getElementById('admin-add-btn').disabled = false;
+  };
+  r.readAsDataURL(file);
+}
+
+function clearAdminPreview() {
+  adminDataUrl = null; adminMime = null;
+  document.getElementById('admin-preview-wrap').style.display = 'none';
+  document.getElementById('admin-file').value = '';
+  document.getElementById('admin-add-btn').disabled = true;
+}
+
+function addPhoto() {
+  if (!adminDataUrl) return;
+  const cls = document.getElementById('admin-cls').value;
+  const desc = document.getElementById('admin-desc').value.trim();
+  const photos = loadPhotos();
+  photos.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    cls, desc: desc||cls, data: adminDataUrl, mime: adminMime,
+    ts: new Date().toISOString()
+  });
+  savePhotos(photos);
+  clearAdminPreview();
+  document.getElementById('admin-desc').value = '';
+  renderAdminGallery();
+  updateSampleCnt();
+  showToast(`📷 "${cls}" 기준 사진이 등록되었습니다.`, false, true);
+}
+
+function renderAdminGallery() {
+  const photos = loadPhotos();
+  const grid = document.getElementById('admin-grid');
+  document.getElementById('admin-cnt').textContent = photos.length;
+  document.getElementById('clear-all-btn').style.display = photos.length ? 'inline-flex' : 'none';
+  grid.innerHTML = '';
+  if (!photos.length) {
+    grid.innerHTML = '<div class="empty"><span class="empty-ico">📷</span>아직 등록된 사진이 없습니다.</div>';
+    return;
+  }
+  photos.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.innerHTML = `
+      <img src="${p.data}" alt="${p.cls}">
+      <div class="ac-cls">${p.cls}</div>
+      <button class="ac-del" onclick="deletePhoto('${p.id}',event)">×</button>
+      <div class="ac-label">${p.desc||p.cls}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function deletePhoto(id, e) {
+  e.stopPropagation();
+  if (!confirm('이 기준 사진을 삭제하시겠습니까?')) return;
+  savePhotos(loadPhotos().filter(p => p.id !== id));
+  if (selectedSampleId === id) { selectedSampleId = null; updateRunBtn(); }
+  renderAdminGallery();
+  updateSampleCnt();
+}
+
+function clearAllPhotos() {
+  if (!confirm(`등록된 기준 사진 ${loadPhotos().length}장을 모두 삭제하시겠습니까?`)) return;
+  savePhotos([]);
+  selectedSampleId = null;
+  renderAdminGallery();
+  updateSampleCnt();
+  updateRunBtn();
+}
+
+function updateSampleCnt() {
+  document.getElementById('sample-cnt').textContent = loadPhotos().length;
+}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, isErr=false, isOk=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast on' + (isErr?' err':isOk?' ok':'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className='toast', 3500);
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+updateSampleCnt();
+updateRunBtn();
+</script>
+</body>
+</html>
